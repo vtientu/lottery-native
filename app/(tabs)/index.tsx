@@ -1,6 +1,8 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,11 +11,62 @@ import {
 } from "react-native";
 
 export default function HomeScreen() {
-  const lotteryResults = {
-    special: "12345",
-    first: "1234",
-    second: ["123", "321"],
-  };
+  const lotteryResults = [
+    {
+      id: 1,
+      label: "Giải đặc biệt",
+      value: ["12345"],
+    },
+    {
+      id: 2,
+      label: "Giải nhất",
+      value: ["1234"],
+    },
+    {
+      id: 3,
+      label: "Giải nhì",
+      value: ["123", "321"],
+    },
+    {
+      id: 4,
+      label: "Giải ba",
+      value: ["123", "321", "123", "321"],
+    },
+    {
+      id: 5,
+      label: "Giải tư",
+      value: ["12", "32", "12", "32", "12", "32"],
+    },
+  ];
+
+  const newsData = [
+    {
+      id: 1,
+      title: "Gần 3 triệu tài khoản tham gia xổ số qua điện thoại của Vietlott",
+      description:
+        "Qua gần 5 năm triển khai kênh phân phối xổ số qua điện thoại (ứng dụng hỗ trợ Vietlott SMS)...",
+      image:
+        "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      id: 2,
+      title: "Thêm 1 khách hàng nữa ở TP.HCM trúng Jackpot của Vietlott",
+      description:
+        "Liên tiếp từ đầu năm tới nay, cả ba khách hàng trúng thưởng vé số ở Vietlott đều ở TP.HCM.",
+      image:
+        "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      id: 3,
+      title:
+        "Từng trúng số 6 triệu đồng, nay người đàn ông ở TP.HCM trúng Vietlott hơn 152 tỉ",
+      description:
+        "Anh N.V.N - một thuê bao MobiFone đến từ TP.HCM - đã nhận giải Jackpot xổ số tự chọn Mega 6/45...",
+      image:
+        "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+  ];
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -29,7 +82,7 @@ export default function HomeScreen() {
           </View>
         </View>
         <View>
-          <Text style={styles.balance}>54.000đ</Text>
+          <Text style={styles.balance}>100.000đ</Text>
         </View>
       </View>
 
@@ -45,6 +98,9 @@ export default function HomeScreen() {
               name={item.icon as any}
               size={28}
               color="#fff"
+              onPress={() => {
+                router.push("/(ticket)/BuyScreen");
+              }}
             />
             <Text style={styles.actionLabel}>{item.label}</Text>
           </TouchableOpacity>
@@ -54,41 +110,41 @@ export default function HomeScreen() {
       {/* Kết quả xổ số */}
       <Text style={styles.heading}>Kết quả xổ số</Text>
       <View style={styles.table}>
-        <View style={styles.row}>
-          <Text style={styles.cell}>Giải đặc biệt</Text>
-          <Text style={{ ...styles.cell, fontWeight: "bold", color: "red" }}>
-            {lotteryResults.special}
-          </Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.cell}>Giải nhất</Text>
-          <Text style={styles.cell}>{lotteryResults.first}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.cell}>Giải nhì</Text>
-          <Text style={styles.cell}>{lotteryResults.second.join(", ")}</Text>
-        </View>
+        {lotteryResults.map((item, idx) => (
+          <View style={styles.row} key={idx}>
+            <Text style={styles.cell}>{item.label}</Text>
+            <Text
+              style={{
+                ...styles.cellCenter,
+                fontWeight: "bold",
+                color: item.id === 1 ? "red" : "black",
+              }}
+            >
+              {item.value.join(", ")}
+            </Text>
+          </View>
+        ))}
       </View>
-      {/* Power 6/55 */}
-      <View style={styles.drawCard}>
-        <Text style={styles.drawTitle}>Kỳ QSMT: 03/10/2023</Text>
-        <Text style={styles.money}>
-          Jackpot 1 ước tính:{" "}
-          <Text style={{ fontWeight: "bold" }}>87.320.545.500đ</Text>
-        </Text>
-        <Text style={styles.money}>
-          Jackpot 2 ước tính:{" "}
-          <Text style={{ fontWeight: "bold" }}>3.000.000.000đ</Text>
-        </Text>
-        <Text style={styles.countdown}>Thời gian 01:56:53</Text>
-      </View>
-
-      {/* Max 3D */}
-      <View style={styles.drawCard}>
-        <Text style={styles.drawTitle}>Kỳ QSMT: 04/10/2023</Text>
-        <Text style={styles.money}>Max 3D / Max 3D+</Text>
-        <Text style={styles.countdown}>Thời gian 25:56:53</Text>
-      </View>
+      <Text style={styles.heading}>Tin tức</Text>
+      {newsData.map((news) => (
+        <TouchableOpacity
+          key={news.id}
+          style={styles.newsCard}
+          onPress={() => {
+            router.push("/(news)/NewsDetailsScreen");
+          }}
+        >
+          <View style={styles.newsImageWrapper}>
+            <Image source={{ uri: news.image }} style={styles.newsImage} />
+          </View>
+          <View style={styles.newsContent}>
+            <Text style={styles.newsTitle}>{news.title}</Text>
+            <Text style={styles.newsDescription} numberOfLines={2}>
+              {news.description}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      ))}
     </ScrollView>
   );
 }
@@ -113,6 +169,38 @@ const styles = StyleSheet.create({
   profileInfo: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  newsCard: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    marginBottom: 16,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    overflow: "hidden",
+    elevation: 2,
+  },
+  newsImageWrapper: {
+    width: 100,
+  },
+  newsImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+    flex: 1,
+  },
+  newsContent: {
+    flex: 1,
+    padding: 8,
+    justifyContent: "center",
+  },
+  newsTitle: {
+    fontWeight: "bold",
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  newsDescription: {
+    fontSize: 12,
+    color: "#555",
   },
   avatar: {
     width: 40,
@@ -159,6 +247,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     fontSize: 16,
+  },
+  cellCenter: {
+    flex: 1,
+    padding: 10,
+    fontSize: 16,
+    textAlign: "center",
   },
   quickActions: {
     flexDirection: "row",

@@ -1,4 +1,6 @@
+import { useAuth } from "@/contexts/AuthContext";
 import useNews from "@/hooks/useNews";
+import useResults from "@/hooks/useResults";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -12,62 +14,9 @@ import {
 } from "react-native";
 
 export default function HomeScreen() {
+  const { user } = useAuth();
   const { news } = useNews();
-  const lotteryResults = [
-    {
-      id: 1,
-      label: "Giải đặc biệt",
-      value: ["12345"],
-    },
-    {
-      id: 2,
-      label: "Giải nhất",
-      value: ["1234"],
-    },
-    {
-      id: 3,
-      label: "Giải nhì",
-      value: ["123", "321"],
-    },
-    {
-      id: 4,
-      label: "Giải ba",
-      value: ["123", "321", "123", "321"],
-    },
-    {
-      id: 5,
-      label: "Giải tư",
-      value: ["12", "32", "12", "32", "12", "32"],
-    },
-  ];
-
-  const newsData = [
-    {
-      id: 1,
-      title: "Gần 3 triệu tài khoản tham gia xổ số qua điện thoại của Vietlott",
-      description:
-        "Qua gần 5 năm triển khai kênh phân phối xổ số qua điện thoại (ứng dụng hỗ trợ Vietlott SMS)...",
-      image:
-        "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 2,
-      title: "Thêm 1 khách hàng nữa ở TP.HCM trúng Jackpot của Vietlott",
-      description:
-        "Liên tiếp từ đầu năm tới nay, cả ba khách hàng trúng thưởng vé số ở Vietlott đều ở TP.HCM.",
-      image:
-        "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 3,
-      title:
-        "Từng trúng số 6 triệu đồng, nay người đàn ông ở TP.HCM trúng Vietlott hơn 152 tỉ",
-      description:
-        "Anh N.V.N - một thuê bao MobiFone đến từ TP.HCM - đã nhận giải Jackpot xổ số tự chọn Mega 6/45...",
-      image:
-        "https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ];
+  const { results } = useResults();
 
   return (
     <ScrollView style={styles.container}>
@@ -79,12 +28,11 @@ export default function HomeScreen() {
           </View>
           <View>
             <Text style={styles.welcome}>Xin chào!</Text>
-            <Text style={styles.username}>NGUYỄN</Text>
-            <Text style={styles.subText}>TK Hạn mức dự thưởng</Text>
+            <Text style={styles.username}>{user?.fullName}</Text>
           </View>
         </View>
         <View>
-          <Text style={styles.balance}>100.000đ</Text>
+          <Text style={styles.balance}>{user?.balance}đ</Text>
         </View>
       </View>
 
@@ -110,30 +58,103 @@ export default function HomeScreen() {
       </View>
 
       {/* Kết quả xổ số */}
-      <Text style={styles.heading}>Kết quả xổ số</Text>
-      <View style={styles.table}>
-        {lotteryResults.map((item, idx) => (
-          <View style={styles.row} key={idx}>
-            <Text style={styles.cell}>{item.label}</Text>
-            <Text
-              style={{
-                ...styles.cellCenter,
-                fontWeight: "bold",
-                color: item.id === 1 ? "red" : "black",
-              }}
-            >
-              {item.value.join(", ")}
-            </Text>
+      {results ? (
+        <>
+          <Text style={styles.heading}>Kết quả xổ số</Text>
+          <View style={styles.table}>
+            <View style={styles.row}>
+              <Text style={styles.cell}>Giải đặc biệt</Text>
+              <Text
+                style={{
+                  ...styles.cellCenter,
+                  fontWeight: "bold",
+                  color: "red",
+                }}
+              >
+                {results?.prizes?.jackpot?.join(", ")}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.cell}>Giải nhất</Text>
+              <Text
+                style={{
+                  ...styles.cellCenter,
+                  fontWeight: "bold",
+                }}
+              >
+                {results?.prizes?.first?.join(", ")}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.cell}>Giải nhất</Text>
+              <Text
+                style={{
+                  ...styles.cellCenter,
+                  fontWeight: "bold",
+                }}
+              >
+                {results?.prizes?.second?.join(", ")}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.cell}>Giải ba</Text>
+              <Text
+                style={{
+                  ...styles.cellCenter,
+                  fontWeight: "bold",
+                }}
+              >
+                {results?.prizes?.third?.join(", ")}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.cell}>Giải tư</Text>
+              <Text
+                style={{
+                  ...styles.cellCenter,
+                  fontWeight: "bold",
+                }}
+              >
+                {results?.prizes?.fourth?.join(", ")}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.cell}>Giải năm</Text>
+              <Text
+                style={{
+                  ...styles.cellCenter,
+                  fontWeight: "bold",
+                }}
+              >
+                {results?.prizes?.fifth?.join(", ")}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.cell}>Giải sáu</Text>
+              <Text
+                style={{
+                  ...styles.cellCenter,
+                  fontWeight: "bold",
+                }}
+              >
+                {results?.prizes?.sixth?.join(", ")}
+              </Text>
+            </View>
           </View>
-        ))}
-      </View>
+        </>
+      ) : (
+        <Text style={styles.heading}>Chưa có kết quả</Text>
+      )}
       <Text style={styles.heading}>Tin tức</Text>
       {news.map((news) => (
         <TouchableOpacity
           key={news._id}
           style={styles.newsCard}
           onPress={() => {
-            router.push("/(news)/NewsDetailsScreen");
+            router.push({
+              pathname: "/(news)/NewsDetailsScreen",
+              params: { id: news._id },
+            });
           }}
         >
           <View style={styles.newsImageWrapper}>

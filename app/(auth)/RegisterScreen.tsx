@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -11,12 +12,14 @@ import {
 
 const RegisterScreen = () => {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const { register } = useAuth();
+  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleRegister = () => {
-    if (!email || !password || !confirmPassword) {
+  const handleRegister = async () => {
+    if (!username || !fullName || !password || !confirmPassword) {
       Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin");
       return;
     }
@@ -24,10 +27,11 @@ const RegisterScreen = () => {
       Alert.alert("Lỗi", "Mật khẩu xác nhận không khớp");
       return;
     }
-    // Ở đây bạn có thể gọi API đăng ký, demo thì chỉ báo thành công
-    Alert.alert("Thành công", "Đăng ký thành công! Hãy đăng nhập.", [
-      { text: "OK", onPress: () => router.replace("/(auth)/LoginScreen") },
-    ]);
+    try {
+      await register({ username, fullName, password });
+    } catch (error: any) {
+      Alert.alert("Đăng ký thất bại", error?.response?.data?.message);
+    }
   };
 
   return (
@@ -35,11 +39,17 @@ const RegisterScreen = () => {
       <Text style={styles.title}>Đăng ký</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
         autoCapitalize="none"
         keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Họ tên"
+        value={fullName}
+        onChangeText={setFullName}
       />
       <TextInput
         style={styles.input}

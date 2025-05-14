@@ -1,5 +1,8 @@
+import { useAuth } from "@/contexts/AuthContext";
+import mainApiRequest from "@/services/mainApiRequest";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -14,9 +17,11 @@ import {
 export default function BuyScreen() {
   const [ticketCode, setTicketCode] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { user, setUser } = useAuth();
 
-  const handleBuy = () => {
-    if (!/^\d{6}$/.test(ticketCode)) {
+  const handleBuy = async () => {
+    if (!/^[0-9]{6}$/.test(ticketCode)) {
       Alert.alert("Lỗi", "Vui lòng nhập đúng 6 chữ số.");
       return;
     }
@@ -25,12 +30,30 @@ export default function BuyScreen() {
       Alert.alert("Lỗi", "Vui lòng nhập số lượng từ 1 đến 99.");
       return;
     }
-
-    // TODO: Gọi API hoặc xử lý mua vé ở đây
-    Alert.alert(
-      "Thành công",
-      `Bạn đã nhập mã: ${ticketCode}\nSố lượng: ${qty}`
-    );
+    const totalCost = qty * 10000;
+    if (user && user.balance < totalCost) {
+      Alert.alert("Thanh toán thất bại", "Số dư không đủ để mua vé");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await mainApiRequest.post("/purchase", {
+        numbers: ticketCode,
+        quantity: qty,
+      });
+      Alert.alert("Thành công", "Bạn đã mua vé thành công.");
+      if (res.data && typeof res.data.balance === "number") {
+        setUser({ ...user, balance: res.data.balance });
+      }
+      setTicketCode("");
+      setQuantity("");
+    } catch (error) {
+      const err = error as any;
+      const msg = err?.response?.data?.message || "Vui lòng thử lại.";
+      Alert.alert("Thanh toán thất bại", msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,6 +63,9 @@ export default function BuyScreen() {
     >
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>🎫 Mua Vé</Text>
+        <Text style={styles.balance}>
+          Số dư: {user?.balance?.toLocaleString()}đ
+        </Text>
 
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Mã vé (6 chữ số):</Text>
@@ -53,6 +79,7 @@ export default function BuyScreen() {
             placeholder="Nhập mã vé"
             keyboardType="numeric"
             maxLength={6}
+            editable={!loading}
           />
         </View>
 
@@ -68,11 +95,20 @@ export default function BuyScreen() {
             placeholder="Số lượng"
             keyboardType="numeric"
             maxLength={2}
+            editable={!loading}
           />
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleBuy}>
-          <Text style={styles.buttonText}>Mua vé ngay</Text>
+        <TouchableOpacity
+          style={[styles.button, loading && { opacity: 0.6 }]}
+          onPress={handleBuy}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Mua vé ngay</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -128,5 +164,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 17,
     fontWeight: "bold",
+  },
+  balance: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#1976d2",
+    marginBottom: 16,
+    textAlign: "center",
   },
 });

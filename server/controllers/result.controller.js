@@ -3,8 +3,7 @@ const resultService = require("../services/result.service");
 const resultController = {
   getResults: async (req, res) => {
     try {
-      const { drawDate = new Date() } = req.query;
-      const results = await resultService.getResults({ drawDate });
+      const results = await resultService.getResults();
       res.status(200).json({
         message: "Results fetched successfully",
         results,

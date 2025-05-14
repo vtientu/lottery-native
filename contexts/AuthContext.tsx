@@ -1,21 +1,117 @@
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import {
+  getProfile,
+  loginService,
+  registerService,
+} from "@/services/auth.service";
+import { removeToken, saveToken } from "@/utils/tokenStorage";
+import { router } from "expo-router";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { Alert } from "react-native";
 
 interface AuthContextType {
   isLoggedIn: boolean;
-  login: () => void;
-  logout: () => void;
+  user: any;
+  setUser: React.Dispatch<React.SetStateAction<any>>;
+  login: ({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) => Promise<void>;
+  logout: () => Promise<void>;
+  register: ({
+    username,
+    fullName,
+    password,
+  }: {
+    username: string;
+    fullName: string;
+    password: string;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  const login = () => setIsLoggedIn(true);
-  const logout = () => setIsLoggedIn(false);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const profile = await getProfile();
+        setIsLoggedIn(true);
+        setUser(profile);
+      } catch {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const login = async ({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) => {
+    try {
+      const response = await loginService({
+        username,
+        password,
+      });
+      setIsLoggedIn(true);
+      setUser(response.user);
+      saveToken(response.token);
+      router.push("/(tabs)");
+    } catch (error: any) {
+      //alert error
+      Alert.alert("Đăng nhập thất bại", error?.response?.data?.message);
+    }
+  };
+
+  const register = async ({
+    username,
+    fullName,
+    password,
+  }: {
+    username: string;
+    fullName: string;
+    password: string;
+  }) => {
+    try {
+      await registerService({
+        username,
+        fullName,
+        password,
+      });
+      Alert.alert("Đăng ký thành công");
+      router.push("/(auth)/LoginScreen");
+    } catch (error: any) {
+      Alert.alert("Đăng ký thất bại", error?.response?.data?.message);
+    }
+  };
+
+  const logout = async () => {
+    await removeToken();
+    setIsLoggedIn(false);
+    setUser(null);
+    router.replace("/(auth)/LoginScreen");
+  };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, user, setUser, login, logout, register }}
+    >
       {children}
     </AuthContext.Provider>
   );

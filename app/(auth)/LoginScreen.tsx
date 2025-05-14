@@ -13,15 +13,14 @@ import { useAuth } from "../../contexts/AuthContext";
 const LoginScreen = () => {
   const { login } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    if (email && password) {
-      login();
-      router.replace("/(tabs)");
+  const handleLogin = async () => {
+    if (username && password) {
+      await login({ username, password });
     } else {
-      Alert.alert("Lỗi", "Vui lòng nhập email và mật khẩu");
+      Alert.alert("Lỗi", "Vui lòng nhập username và password");
     }
   };
 
@@ -34,9 +33,9 @@ const LoginScreen = () => {
       <Text style={styles.title}>Đăng nhập</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
         autoCapitalize="none"
         keyboardType="email-address"
       />

@@ -7,8 +7,8 @@ const resultSchema = new mongoose.Schema(
       required: true,
     },
     prizes: {
-      jackpot: String,
-      first: String,
+      jackpot: [String],
+      first: [String],
       second: [String],
       third: [String],
       fourth: [String],

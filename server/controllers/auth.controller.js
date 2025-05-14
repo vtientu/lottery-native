@@ -48,11 +48,35 @@ const authController = {
           _id: user._id,
           username: user.username,
           fullName: user.fullName,
+          balance: user.balance,
         },
         token,
       });
     } catch (error) {
       res.status(401).json({ message: error.message || "Login failed" });
+    }
+  },
+
+  getProfile: async (req, res) => {
+    try {
+      // req.user có thể là { user: userObj } hoặc userId, tùy theo token
+      let userId = req.user && req.user.user ? req.user.user._id || req.user.user : req.user;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const User = require("../models/User");
+      const user = await User.findById(userId).select("_id username fullName");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({
+        _id: user._id,
+        username: user.username,
+        fullName: user.fullName,
+        balance: user.balance,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message || "Failed to get profile" });
     }
   },
 };

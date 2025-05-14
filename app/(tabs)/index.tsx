@@ -1,3 +1,4 @@
+import useNews from "@/hooks/useNews";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -11,6 +12,7 @@ import {
 } from "react-native";
 
 export default function HomeScreen() {
+  const { news } = useNews();
   const lotteryResults = [
     {
       id: 1,
@@ -126,9 +128,9 @@ export default function HomeScreen() {
         ))}
       </View>
       <Text style={styles.heading}>Tin tức</Text>
-      {newsData.map((news) => (
+      {news.map((news) => (
         <TouchableOpacity
-          key={news.id}
+          key={news._id}
           style={styles.newsCard}
           onPress={() => {
             router.push("/(news)/NewsDetailsScreen");
@@ -140,7 +142,7 @@ export default function HomeScreen() {
           <View style={styles.newsContent}>
             <Text style={styles.newsTitle}>{news.title}</Text>
             <Text style={styles.newsDescription} numberOfLines={2}>
-              {news.description}
+              {news.content}
             </Text>
           </View>
         </TouchableOpacity>

@@ -9,8 +9,8 @@ import {
   View,
 } from "react-native";
 
-export default function MyTicketsScreen() {
-  const [tickets, setTickets] = useState([]);
+export default function MyPurchaseScreen() {
+  const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -18,7 +18,7 @@ export default function MyTicketsScreen() {
     setLoading(true);
     try {
       const data = await getMyTicketsService();
-      setTickets(data);
+      setTickets(data?.purchases);
     } finally {
       setLoading(false);
     }
@@ -56,29 +56,40 @@ export default function MyTicketsScreen() {
       }
       renderItem={({ item }) => (
         <View style={styles.ticket}>
-          <Text style={styles.numbers}>Mã vé: {item.numbers}</Text>
-          <Text>Số lượng: {item.quantity}</Text>
+          <Text style={styles.numbers}>Mã vé: {item?.numbers}</Text>
+          <Text>Số lượng: {item?.quantity}</Text>
           <Text>
             Trạng thái:{" "}
             <Text
               style={{
                 color:
-                  item.status === "won"
+                  item?.status === "won"
                     ? "green"
-                    : item.status === "lost"
+                    : item?.status === "lost"
                     ? "red"
                     : "#888",
                 fontWeight: "bold",
               }}
             >
-              {item.status === "won"
-                ? `Trúng (${item.prizeWon})`
-                : item.status === "lost"
+              {item?.status === "won"
+                ? `Trúng (${item?.prizeWon})`
+                : item?.status === "lost"
                 ? "Không trúng"
                 : "Chờ kết quả"}
             </Text>
           </Text>
-          <Text>Mua lúc: {new Date(item.createdAt).toLocaleString()}</Text>
+          <Text>
+            Mua lúc:{" "}
+            {item?.createdAt
+              ? new Date(item?.createdAt).toLocaleString("vi-VN", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "Chưa mua"}
+          </Text>
         </View>
       )}
     />

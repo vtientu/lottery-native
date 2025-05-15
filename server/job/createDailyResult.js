@@ -1,20 +1,55 @@
 const Result = require("../models/Result");
 const Purchase = require("../models/Purchase");
-const moment = require("moment");
+const moment = require("moment-timezone");
 
 const createDailyResult = async () => {
   try {
-    const drawDate = moment().startOf("day").toDate();
-    const drawDateEnd = moment().endOf("day").toDate();
-
+    // Tạo ngày và ngày cuối của ngày hôm trước
+    const drawDate = moment
+      .tz("Asia/Ho_Chi_Minh")
+      .subtract(1, "day")
+      .startOf("day")
+      .toDate();
+    const drawDateEnd = moment
+      .tz("Asia/Ho_Chi_Minh")
+      .subtract(1, "day")
+      .endOf("day")
+      .toDate();
     if (isNaN(drawDate.getTime()) || isNaN(drawDateEnd.getTime())) {
       throw new Error("Invalid drawDate or drawDateEnd value");
     }
 
-
+    // Kiểm tra xem kết quả đã tồn tại chưa
     const existing = await Result.findOne({ drawDate });
-    if (existing) return;
+    if (existing) {
+      // Tìm kiếm các mã số đã mua trong ngày
+      const purchases = await Purchase.find({
+        createdAt: { $gte: drawDate, $lt: drawDateEnd },
+      });
 
+      if (purchases.length > 0) {
+        // Cập nhật trạng thái và giải thưởng cho các mã số đã mua
+        const bulkOps = purchases.map((purchase) => {
+          const matchedPrize = checkPrize(purchase.numbers, existing.prizes);
+          return {
+            updateOne: {
+              filter: { _id: purchase._id },
+              update: {
+                $set: {
+                  status: matchedPrize ? "won" : "lost",
+                  prizeWon: matchedPrize || null,
+                },
+              },
+            },
+          };
+        });
+
+        await Purchase.bulkWrite(bulkOps);
+      }
+      return;
+    }
+
+    // Tạo kết quả mới
     const result = new Result({
       drawDate,
       prizes: generatePrizes(),
@@ -22,9 +57,8 @@ const createDailyResult = async () => {
 
     await result.save();
 
-    //check purchase of the day
     const purchases = await Purchase.find({
-      drawDate: { $gte: drawDate, $lt: drawDateEnd },
+      createdAt: { $gte: drawDate, $lt: drawDateEnd },
     });
 
     if (purchases.length > 0) {
@@ -52,6 +86,7 @@ const createDailyResult = async () => {
   }
 };
 
+// Kiểm tra xem mã số đã mua có trúng thưởng không
 const checkPrize = (ticketNumber, prizes) => {
   const prizeOrder = [
     { name: "jackpot", values: prizes.jackpot, digits: 6 },
@@ -61,8 +96,6 @@ const checkPrize = (ticketNumber, prizes) => {
     { name: "fourth", values: prizes.fourth, digits: 4 },
     { name: "fifth", values: prizes.fifth, digits: 4 },
     { name: "sixth", values: prizes.sixth, digits: 3 },
-    { name: "seventh", values: prizes.seventh, digits: 2 },
-    { name: "eighth", values: prizes.eighth, digits: 2 },
   ];
 
   for (const prize of prizeOrder) {

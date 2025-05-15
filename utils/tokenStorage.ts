@@ -4,7 +4,9 @@ const TOKEN_KEY = "access_token";
 
 export const saveToken = async (token: string) => {
   try {
-    await AsyncStorage.setItem(TOKEN_KEY, token);
+    const expireAt = Date.now() + 24 * 60 * 60 * 1000; // 1 ngày tính bằng ms
+    const data = JSON.stringify({ token, expireAt });
+    await AsyncStorage.setItem(TOKEN_KEY, data);
   } catch (error) {
     console.error("Error saving token", error);
   }
@@ -12,7 +14,20 @@ export const saveToken = async (token: string) => {
 
 export const getToken = async () => {
   try {
-    return await AsyncStorage.getItem(TOKEN_KEY);
+    const data = await AsyncStorage.getItem(TOKEN_KEY);
+    if (!data) return null;
+    let tokenObj;
+    try {
+      tokenObj = JSON.parse(data);
+    } catch {
+      // Trường hợp cũ chỉ lưu token dạng string
+      return data;
+    }
+    if (tokenObj.expireAt && Date.now() > tokenObj.expireAt) {
+      await AsyncStorage.removeItem(TOKEN_KEY);
+      return null; // Token đã hết hạn
+    }
+    return tokenObj.token;
   } catch (error) {
     console.error("Error getting token", error);
     return null;

@@ -14,7 +14,7 @@ const authMiddleware = {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded; // Lưu thông tin người dùng vào request
+      req.user = decoded?.user;
       next();
     } catch (error) {
       console.log(error);

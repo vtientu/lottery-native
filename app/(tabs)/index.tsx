@@ -32,29 +32,35 @@ export default function HomeScreen() {
           </View>
         </View>
         <View>
-          <Text style={styles.balance}>{user?.balance}đ</Text>
+          <Text style={styles.balance}>
+            {user?.balance?.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </Text>
         </View>
       </View>
 
       {/* Quick actions */}
       <View style={styles.quickActions}>
-        {[
-          { icon: "gift-outline", label: "Giải thưởng" },
-          { icon: "cash-plus", label: "Mua vé" },
-          { icon: "cash-minus", label: "Vé của tôi" },
-        ].map((item, idx) => (
-          <TouchableOpacity key={idx} style={styles.actionItem}>
-            <MaterialCommunityIcons
-              name={item.icon as any}
-              size={28}
-              color="#fff"
-              onPress={() => {
-                router.push("/(ticket)/BuyScreen");
-              }}
-            />
-            <Text style={styles.actionLabel}>{item.label}</Text>
-          </TouchableOpacity>
-        ))}
+        <TouchableOpacity
+          style={styles.actionItem}
+          onPress={() => {
+            router.push("/(ticket)/BuyScreen");
+          }}
+        >
+          <MaterialCommunityIcons name={"cash-plus"} size={28} color="#fff" />
+          <Text style={styles.actionLabel}>Mua vé</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.actionItem}
+          onPress={() => {
+            router.push("/(ticket)/MyPurchase");
+          }}
+        >
+          <MaterialCommunityIcons name={"cash-minus"} size={28} color="#fff" />
+          <Text style={styles.actionLabel}>Vé của tôi</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Kết quả xổ số */}

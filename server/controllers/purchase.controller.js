@@ -22,6 +22,8 @@ const purchaseController = {
       const { numbers, quantity } = req.body;
       const { userId } = req.user;
       if (!userId || !numbers || !quantity) {
+        console.log(userId, numbers, quantity);
+
         return res
           .status(400)
           .json({ message: "UserId, numbers and quantity are required" });

@@ -19,7 +19,11 @@ const authController = {
       }
       const user = await authService.register(username, password, fullName);
 
-      const token = generateToken(user);
+      const token = generateToken({
+        userId: user._id,
+        username: user.username,
+        fullName: user.fullName,
+      });
 
       res.status(201).json({
         message: "User registered successfully",
@@ -40,7 +44,11 @@ const authController = {
       const { username, password } = req.body;
       const user = await authService.login(username, password);
 
-      const token = generateToken(user._id);
+      const token = generateToken({
+        userId: user._id,
+        username: user.username,
+        fullName: user.fullName,
+      });
 
       res.status(200).json({
         message: "User logged in successfully",
@@ -59,13 +67,14 @@ const authController = {
 
   getProfile: async (req, res) => {
     try {
-      // req.user có thể là { user: userObj } hoặc userId, tùy theo token
-      let userId = req.user && req.user.user ? req.user.user._id || req.user.user : req.user;
+      const { userId } = req.user;
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
       const User = require("../models/User");
-      const user = await User.findById(userId).select("_id username fullName");
+      const user = await User.findById(userId).select(
+        "_id username fullName balance"
+      );
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -76,7 +85,9 @@ const authController = {
         balance: user.balance,
       });
     } catch (error) {
-      res.status(500).json({ message: error.message || "Failed to get profile" });
+      res
+        .status(500)
+        .json({ message: error.message || "Failed to get profile" });
     }
   },
 };

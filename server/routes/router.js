@@ -9,7 +9,6 @@ const authMiddleware = require("../middlewares/auth.middleware");
 router.use("/auth", authRouter);
 router.use("/news", newsRouter);
 router.use("/result", resultRouter);
-router.use(authMiddleware.protect)
-router.use("/purchase", purchaseRouter);
+router.use("/purchase", authMiddleware.protect, purchaseRouter);
 
 module.exports = router;

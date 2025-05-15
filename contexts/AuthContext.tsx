@@ -4,7 +4,7 @@ import {
   registerService,
 } from "@/services/auth.service";
 import { removeToken, saveToken } from "@/utils/tokenStorage";
-import { router } from "expo-router";
+import { router, useSegments } from "expo-router";
 import React, {
   createContext,
   ReactNode,
@@ -42,6 +42,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const segments = useSegments();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -49,13 +50,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const profile = await getProfile();
         setIsLoggedIn(true);
         setUser(profile);
+        // Nếu đang ở trang login hoặc register thì chuyển vào tabs
+
+        const segArr = [...segments];
+        if (
+          segArr.includes("LoginScreen") ||
+          segArr.includes("RegisterScreen")
+        ) {
+          router.push("/(tabs)");
+        }
       } catch {
         setIsLoggedIn(false);
         setUser(null);
       }
     };
     checkAuth();
-  }, []);
+  }, [segments]);
 
   const login = async ({
     username,

@@ -28,6 +28,41 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
+          <Stack.Screen
+            name="(ticket)/BuyScreen"
+            options={{
+              headerShown: true,
+              headerTitle: "Mua vé",
+            }}
+          />
+          <Stack.Screen
+            name="(news)/NewsDetailsScreen"
+            options={{
+              headerShown: true,
+              headerTitle: "Chi tiết tin tức",
+            }}
+          />
+          <Stack.Screen
+            name="(ticket)/MyPurchase"
+            options={{
+              headerShown: true,
+              headerTitle: "Vé của tôi",
+            }}
+          />
+          <Stack.Screen
+            name="(auth)/LoginScreen"
+            options={{
+              headerShown: true,
+              headerTitle: "Đăng nhập",
+            }}
+          />
+          <Stack.Screen
+            name="(auth)/RegisterScreen"
+            options={{
+              headerShown: true,
+              headerTitle: "Đăng ký",
+            }}
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

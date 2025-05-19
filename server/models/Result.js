@@ -14,6 +14,7 @@ const resultSchema = new mongoose.Schema(
       fourth: [String],
       fifth: [String],
       sixth: [String],
+      seventh: [String],
     },
   },
   { timestamps: true, collection: "results" }

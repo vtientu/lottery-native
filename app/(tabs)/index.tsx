@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import useNews from "@/hooks/useNews";
 import useResults from "@/hooks/useResults";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import {
@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { WebView } from "react-native-webview";
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -19,138 +20,89 @@ export default function HomeScreen() {
   const { results } = useResults();
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 32 }}
+    >
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.profileInfo}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>H</Text>
+      <View style={styles.headerWrap}>
+        <View style={styles.header}>
+          <View style={styles.profileInfo}>
+            <View style={styles.avatar}>
+              <FontAwesome name="user" size={24} color="#fff" />
+            </View>
+            <View>
+              <Text style={styles.welcome}>Xin chào!</Text>
+              <Text style={styles.username}>{user?.fullName}</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.welcome}>Xin chào!</Text>
-            <Text style={styles.username}>{user?.fullName}</Text>
+          <View style={styles.balanceBox}>
+            <MaterialCommunityIcons
+              name="wallet"
+              size={20}
+              color="#1976d2"
+              style={{ marginRight: 6 }}
+            />
+            <Text style={styles.balanceAmount}>
+              {user?.balance?.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              })}
+            </Text>
           </View>
-        </View>
-        <View>
-          <Text style={styles.balance}>
-            {user?.balance?.toLocaleString("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            })}
-          </Text>
         </View>
       </View>
 
       {/* Quick actions */}
-      <View style={styles.quickActions}>
-        <TouchableOpacity
-          style={styles.actionItem}
-          onPress={() => {
-            router.push("/(ticket)/BuyScreen");
-          }}
-        >
-          <MaterialCommunityIcons name={"cash-plus"} size={28} color="#fff" />
-          <Text style={styles.actionLabel}>Mua vé</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.actionItem}
-          onPress={() => {
-            router.push("/(ticket)/MyPurchase");
-          }}
-        >
-          <MaterialCommunityIcons name={"cash-minus"} size={28} color="#fff" />
-          <Text style={styles.actionLabel}>Vé của tôi</Text>
-        </TouchableOpacity>
+      <View style={styles.quickActionsWrap}>
+        <View style={styles.quickActions}>
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => {
+              router.push("/(ticket)/BuyScreen");
+            }}
+          >
+            <MaterialCommunityIcons name={"cash-plus"} size={32} color="#fff" />
+            <Text style={styles.actionLabel}>Mua vé</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => {
+              router.push("/(ticket)/MyPurchase");
+            }}
+          >
+            <MaterialCommunityIcons
+              name={"ticket-confirmation"}
+              size={32}
+              color="#fff"
+            />
+            <Text style={styles.actionLabel}>Vé của tôi</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Kết quả xổ số */}
-      {results ? (
-        <>
-          <Text style={styles.heading}>Kết quả xổ số</Text>
-          <View style={styles.table}>
-            <View style={styles.row}>
-              <Text style={styles.cell}>Giải đặc biệt</Text>
-              <Text
-                style={{
-                  ...styles.cellCenter,
-                  fontWeight: "bold",
-                  color: "red",
-                }}
-              >
-                {results?.prizes?.jackpot?.join(", ")}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.cell}>Giải nhất</Text>
-              <Text
-                style={{
-                  ...styles.cellCenter,
-                  fontWeight: "bold",
-                }}
-              >
-                {results?.prizes?.first?.join(", ")}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.cell}>Giải nhất</Text>
-              <Text
-                style={{
-                  ...styles.cellCenter,
-                  fontWeight: "bold",
-                }}
-              >
-                {results?.prizes?.second?.join(", ")}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.cell}>Giải ba</Text>
-              <Text
-                style={{
-                  ...styles.cellCenter,
-                  fontWeight: "bold",
-                }}
-              >
-                {results?.prizes?.third?.join(", ")}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.cell}>Giải tư</Text>
-              <Text
-                style={{
-                  ...styles.cellCenter,
-                  fontWeight: "bold",
-                }}
-              >
-                {results?.prizes?.fourth?.join(", ")}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.cell}>Giải năm</Text>
-              <Text
-                style={{
-                  ...styles.cellCenter,
-                  fontWeight: "bold",
-                }}
-              >
-                {results?.prizes?.fifth?.join(", ")}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.cell}>Giải sáu</Text>
-              <Text
-                style={{
-                  ...styles.cellCenter,
-                  fontWeight: "bold",
-                }}
-              >
-                {results?.prizes?.sixth?.join(", ")}
-              </Text>
-            </View>
-          </View>
-        </>
-      ) : (
-        <Text style={styles.heading}>Chưa có kết quả</Text>
-      )}
+      <View style={styles.lotteryCard}>
+        <Text style={styles.lotteryTitle}>Kết quả xổ số miền Bắc</Text>
+        <View style={styles.webviewWrap}>
+          <WebView
+            source={{ uri: "https://xskt.com.vn/xsmb" }}
+            onError={(syntheticEvent) => {
+              const { nativeEvent } = syntheticEvent;
+              console.error("❌ WebView error: ", nativeEvent);
+            }}
+            onLoadEnd={() => {
+              console.log("✅ WebView loaded");
+            }}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            originWhitelist={["*"]}
+            style={{ borderRadius: 16, overflow: "hidden" }}
+          />
+        </View>
+      </View>
+
+      {/* Tin tức */}
       <Text style={styles.heading}>Tin tức</Text>
       {news.map((news) => (
         <TouchableOpacity
@@ -179,117 +131,90 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  heading: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginVertical: 10,
-  },
   container: {
+    backgroundColor: "#f4f6fb",
+    paddingHorizontal: 0,
+    paddingTop: 0,
+  },
+  headerWrap: {
     backgroundColor: "#fff",
-    paddingHorizontal: 16,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    paddingBottom: 18,
     paddingTop: 40,
+    paddingHorizontal: 20,
+    shadowColor: "#1976d2",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 6,
+    marginBottom: 8,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
   },
   profileInfo: {
     flexDirection: "row",
     alignItems: "center",
   },
-  newsCard: {
-    flexDirection: "row",
-    alignItems: "stretch",
-    marginBottom: 16,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    overflow: "hidden",
-    elevation: 2,
-  },
-  newsImageWrapper: {
-    width: 100,
-  },
-  newsImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-    flex: 1,
-  },
-  newsContent: {
-    flex: 1,
-    padding: 8,
-    justifyContent: "center",
-  },
-  newsTitle: {
-    fontWeight: "bold",
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  newsDescription: {
-    fontSize: 12,
-    color: "#555",
-  },
   avatar: {
-    width: 40,
-    height: 40,
-    backgroundColor: "#f2a900",
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    backgroundColor: "#1976d2",
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 8,
-  },
-  avatarText: {
-    color: "#fff",
-    fontWeight: "bold",
+    marginRight: 10,
+    shadowColor: "#1976d2",
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
   welcome: {
     fontSize: 14,
     color: "#666",
   },
   username: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold",
+    color: "#222",
   },
-  subText: {
-    fontSize: 12,
-    color: "#999",
-  },
-  balance: {
-    fontWeight: "bold",
-    fontSize: 16,
-    color: "#e60000",
-  },
-  table: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    overflow: "hidden",
-  },
-  row: {
+  balanceBox: {
     flexDirection: "row",
-    borderBottomWidth: 1,
-    borderColor: "#ccc",
+    alignItems: "center",
+    backgroundColor: "#e3f2fd",
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    shadowColor: "#1976d2",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  cell: {
-    flex: 1,
-    padding: 10,
+  balanceAmount: {
+    fontWeight: "bold",
     fontSize: 16,
+    color: "#1976d2",
   },
-  cellCenter: {
-    flex: 1,
-    padding: 10,
-    fontSize: 16,
-    textAlign: "center",
+  quickActionsWrap: {
+    paddingHorizontal: 20,
+    marginTop: 8,
+    marginBottom: 18,
   },
   quickActions: {
     flexDirection: "row",
     justifyContent: "space-between",
     backgroundColor: "#e60000",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 16,
+    padding: 16,
+    borderRadius: 18,
+    shadowColor: "#e60000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.13,
+    shadowRadius: 10,
+    elevation: 5,
   },
   actionItem: {
     alignItems: "center",
@@ -297,93 +222,83 @@ const styles = StyleSheet.create({
   },
   actionLabel: {
     color: "#fff",
-    fontSize: 12,
-    marginTop: 4,
-  },
-  banner: {
-    backgroundColor: "#ffcc00",
-    borderRadius: 12,
-    padding: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  bannerText: {
-    flex: 1,
+    fontSize: 14,
+    marginTop: 6,
     fontWeight: "600",
-  },
-  bannerHighlight: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#e60000",
-  },
-  bannerImage: {
-    width: 80,
-    height: 80,
-    resizeMode: "contain",
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 6,
+    letterSpacing: 0.5,
   },
   lotteryCard: {
-    backgroundColor: "#f2f2f2",
-    borderRadius: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 16,
+    marginHorizontal: 20,
+    marginBottom: 24,
+    shadowColor: "#1976d2",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  mascot: {
-    width: 60,
-    height: 60,
-    marginRight: 12,
+  lotteryTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#e60000",
+    marginBottom: 10,
+    letterSpacing: 0.5,
   },
-  lotteryInfo: {
-    flex: 1,
-  },
-  drawId: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 6,
-  },
-  resultRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 4,
-  },
-  resultBall: {
-    width: 32,
-    height: 32,
+  webviewWrap: {
+    height: 1200,
     borderRadius: 16,
-    backgroundColor: "#ff9933",
-    justifyContent: "center",
-    alignItems: "center",
+    overflow: "hidden",
   },
-  resultText: {
-    color: "#fff",
+  heading: {
+    fontSize: 18,
     fontWeight: "bold",
+    marginVertical: 12,
+    marginLeft: 20,
+    color: "#1976d2",
+    letterSpacing: 0.5,
   },
-  countdown: {
-    fontSize: 12,
-    color: "#555",
+  newsCard: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    marginBottom: 18,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    overflow: "hidden",
+    elevation: 3,
+    marginHorizontal: 20,
+    shadowColor: "#1976d2",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
   },
-  drawCard: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 10,
+  newsImageWrapper: {
+    width: 110,
+    height: 90,
+    backgroundColor: "#f4f6fb",
+  },
+  newsImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+    flex: 1,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+  },
+  newsContent: {
+    flex: 1,
     padding: 12,
-    marginBottom: 16,
+    justifyContent: "center",
   },
-  drawTitle: {
-    fontSize: 14,
+  newsTitle: {
     fontWeight: "bold",
-    marginBottom: 4,
+    fontSize: 15,
+    marginBottom: 6,
+    color: "#222",
   },
-  money: {
+  newsDescription: {
     fontSize: 13,
-    marginBottom: 2,
+    color: "#555",
   },
 });

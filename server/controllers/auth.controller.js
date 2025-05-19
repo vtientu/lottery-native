@@ -11,13 +11,19 @@ const generateToken = (user) => {
 const authController = {
   register: async (req, res) => {
     try {
-      const { username, password, fullName } = req.body;
-      if (!username || !password || !fullName) {
-        return res
-          .status(400)
-          .json({ message: "Username, password and fullName are required" });
+      const { username, password, fullName, phone, email } = req.body;
+      if (!username || !password || !fullName || !phone || !email) {
+        return res.status(400).json({
+          message: "Username, password, fullName, phone and email are required",
+        });
       }
-      const user = await authService.register(username, password, fullName);
+      const user = await authService.register(
+        username,
+        password,
+        fullName,
+        phone,
+        email
+      );
 
       const token = generateToken({
         userId: user._id,
@@ -73,7 +79,7 @@ const authController = {
       }
       const User = require("../models/User");
       const user = await User.findById(userId).select(
-        "_id username fullName balance"
+        "_id username fullName balance phone email"
       );
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -83,6 +89,8 @@ const authController = {
         username: user.username,
         fullName: user.fullName,
         balance: user.balance,
+        phone: user.phone,
+        email: user.email,
       });
     } catch (error) {
       res

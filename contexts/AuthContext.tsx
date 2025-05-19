@@ -12,7 +12,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { Alert } from "react-native";
+import Toast from "react-native-toast-message";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -29,10 +29,14 @@ interface AuthContextType {
   register: ({
     username,
     fullName,
+    phone,
+    email,
     password,
   }: {
     username: string;
     fullName: string;
+    phone: string;
+    email: string;
     password: string;
   }) => Promise<void>;
 }
@@ -84,30 +88,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       saveToken(response.token);
       router.push("/(tabs)");
     } catch (error: any) {
-      //alert error
-      Alert.alert("Đăng nhập thất bại", error?.response?.data?.message);
+      Toast.show({
+        type: "error",
+        text1: "Đăng nhập thất bại",
+        text2: error?.response?.data?.message || "Vui lòng thử lại.",
+      });
     }
   };
 
   const register = async ({
     username,
     fullName,
+    phone,
+    email,
     password,
   }: {
     username: string;
     fullName: string;
+    phone: string;
+    email: string;
     password: string;
   }) => {
     try {
       await registerService({
         username,
         fullName,
+        phone,
+        email,
         password,
       });
-      Alert.alert("Đăng ký thành công");
+      Toast.show({ type: "success", text1: "Đăng ký thành công" });
       router.push("/(auth)/LoginScreen");
     } catch (error: any) {
-      Alert.alert("Đăng ký thất bại", error?.response?.data?.message);
+      console.log(error);
+      Toast.show({
+        type: "error",
+        text1: "Đăng ký thất bại",
+        text2: error?.response?.data?.message || "Vui lòng thử lại.",
+      });
     }
   };
 

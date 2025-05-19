@@ -1,13 +1,13 @@
 const User = require("../models/User");
 
 const authService = {
-  register: async (username, password, fullName) => {
+  register: async (username, password, fullName, phone, email) => {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       throw new Error("Username already in use");
     }
 
-    const newUser = new User({ username, password, fullName });
+    const newUser = new User({ username, password, fullName, phone, email });
     await newUser.save();
 
     return newUser;

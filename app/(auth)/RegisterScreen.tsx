@@ -36,15 +36,54 @@ const RegisterScreen = () => {
 
   const handleRegister = async () => {
     let err: any = {};
-    if (!username) err.username = "Vui lòng nhập username";
-    if (!fullName) err.fullName = "Vui lòng nhập họ tên";
-    if (!phone) err.phone = "Vui lòng nhập số điện thoại";
-    if (!email) err.email = "Vui lòng nhập email";
-    if (!password) err.password = "Vui lòng nhập mật khẩu";
-    if (!confirmPassword) err.confirmPassword = "Vui lòng xác nhận mật khẩu";
-    if (password && confirmPassword && password !== confirmPassword) {
+
+    // Username validation
+    if (!username) {
+      err.username = "Vui lòng nhập username";
+    } else if (username.length < 6) {
+      err.username = "Username phải có ít nhất 6 ký tự";
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      err.username = "Username chỉ được chứa chữ cái, số và dấu gạch dưới";
+    }
+
+    // Full name validation
+    if (!fullName) {
+      err.fullName = "Vui lòng nhập họ tên";
+    } else if (fullName.length < 2) {
+      err.fullName = "Họ tên phải có ít nhất 2 ký tự";
+    }
+
+    // Phone validation
+    if (!phone) {
+      err.phone = "Vui lòng nhập số điện thoại";
+    } else if (!/^(0|\+84)[0-9]{9}$/.test(phone.replace(/\s/g, ""))) {
+      err.phone = "Số điện thoại không hợp lệ";
+    }
+
+    // Email validation
+    if (!email) {
+      err.email = "Vui lòng nhập email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      err.email = "Email không hợp lệ";
+    }
+
+    // Password validation
+    if (!password) {
+      err.password = "Vui lòng nhập mật khẩu";
+    } else if (password.length < 8) {
+      err.password = "Mật khẩu phải có ít nhất 8 ký tự";
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      err.password =
+        "Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số";
+    }
+
+    // Confirm password validation
+    if (!confirmPassword) {
+      err.confirmPassword = "Vui lòng xác nhận mật khẩu";
+    } else if (password !== confirmPassword) {
       err.confirmPassword = "Mật khẩu xác nhận không khớp";
     }
+
     setError(err);
     if (Object.keys(err).length > 0) {
       Toast.show({
@@ -54,9 +93,25 @@ const RegisterScreen = () => {
       });
       return;
     }
+
     setLoading(true);
-    await register({ username, fullName, phone, email, password });
-    setLoading(false);
+    try {
+      await register({ username, fullName, phone, email, password });
+      Toast.show({
+        type: "success",
+        text1: "Đăng ký thành công",
+        text2: "Vui lòng đăng nhập để tiếp tục.",
+      });
+      router.push("/(auth)/LoginScreen");
+    } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: "Lỗi",
+        text2: error?.message || "Vui lòng thử lại.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

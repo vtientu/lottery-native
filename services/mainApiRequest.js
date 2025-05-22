@@ -2,7 +2,7 @@ import axios from "axios";
 import { getToken } from "../utils/tokenStorage";
 
 const mainApiRequest = axios.create({
-  baseURL: "http://192.168.61.142:3000/api/v1",
+  baseURL: "http://192.168.61.121:3000/api/v1",
   headers: {
     "Content-Type": "application/json",
   },
